@@ -12,6 +12,8 @@ function App() {
   const [solution, setSolution] = useState<Move[]>([]);
   const [hint, setHint] = useState<string>('');
   const [viewMode, setViewMode] = useState<'3d' | '2d'>('3d');
+  const [userSolution, setUserSolution] = useState<string>('');
+  const [comparison, setComparison] = useState<string>('');
 
   // 创建求解器
   const solver = useMemo(() => new CrossSolver(cube), [cube]);
@@ -88,6 +90,86 @@ function App() {
     }
   };
 
+  // 解析用户输入的移动序列
+  const parseUserMoves = (input: string): Move[] | null => {
+    try {
+      const moves = input.trim().split(/\s+/).filter(m => m.length > 0);
+      const validMoves: Move[] = ['U', 'D', 'F', 'B', 'R', 'L', "U'", "D'", "F'", "B'", "R'", "L'", 'U2', 'D2', 'F2', 'B2', 'R2', 'L2'];
+
+      for (const move of moves) {
+        if (!validMoves.includes(move as Move)) {
+          return null;
+        }
+      }
+
+      return moves as Move[];
+    } catch (error) {
+      return null;
+    }
+  };
+
+  // 比较用户解法和最优解
+  const compareUserSolution = () => {
+    const userMoves = parseUserMoves(userSolution);
+
+    if (!userMoves) {
+      setComparison('❌ 输入格式错误！请使用空格分隔，例如：F R U R\' U\' F\'');
+      return;
+    }
+
+    // 测试用户解法是否有效
+    const testCube = cube.clone();
+    testCube.applyMoves(userMoves);
+    const userSolves = testCube.isCrossSolved();
+
+    // 获取最优解
+    const optimalSolution = solver.solveCross();
+
+    let result = '';
+
+    if (userSolves) {
+      result += '✅ 你的解法正确！\n\n';
+      result += `你的步数：${userMoves.length} 步\n`;
+      result += `你的解法：${userMoves.join(' ')}\n\n`;
+
+      if (optimalSolution.moves.length > 0) {
+        result += `推荐解法：${optimalSolution.moves.length} 步\n`;
+        result += `推荐步骤：${optimalSolution.moves.join(' ')}\n\n`;
+
+        if (userMoves.length === optimalSolution.moves.length) {
+          result += '🎉 太棒了！你找到了最优解！';
+        } else if (userMoves.length < optimalSolution.moves.length + 3) {
+          result += '👍 非常好！你的解法很接近最优解！';
+        } else if (userMoves.length < optimalSolution.moves.length + 6) {
+          result += '😊 不错！还有优化空间。';
+        } else {
+          result += '💪 解决了！可以尝试更短的解法。';
+        }
+      } else {
+        result += '💡 提示：魔方已经完成Cross，无需额外步骤。';
+      }
+    } else {
+      result += '❌ 你的解法不能完成Cross\n\n';
+      result += `你的步数：${userMoves.length} 步\n`;
+      result += `你的解法：${userMoves.join(' ')}\n\n`;
+
+      if (optimalSolution.moves.length > 0) {
+        result += `推荐解法：${optimalSolution.moves.length} 步\n`;
+        result += `推荐步骤：${optimalSolution.moves.join(' ')}\n\n`;
+      }
+
+      result += '💡 建议：检查每个边块的位置和方向';
+    }
+
+    setComparison(result);
+  };
+
+  // 清除比较结果
+  const clearComparison = () => {
+    setUserSolution('');
+    setComparison('');
+  };
+
   // 常用移动按钮
   const commonMoves: Move[] = ['U', "U'", 'D', "D'", 'F', "F'", 'B', "B'", 'R', "R'", 'L', "L'"];
 
@@ -147,6 +229,41 @@ function App() {
               <button className="btn btn-success" onClick={applySolution}>
                 应用解决方案
               </button>
+            </div>
+          )}
+
+          <div className="control-group">
+            <h3>测试你的解法</h3>
+            <p className="input-hint">输入你的Cross解法，用空格分隔（例如：F R U R' U' F'）</p>
+            <textarea
+              className="solution-input"
+              value={userSolution}
+              onChange={(e) => setUserSolution(e.target.value)}
+              placeholder="F R U R' U' F'"
+              rows={3}
+            />
+            <div className="button-row">
+              <button
+                className="btn btn-primary"
+                onClick={compareUserSolution}
+                disabled={!userSolution.trim()}
+              >
+                🔍 检查解法
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={clearComparison}
+                disabled={!userSolution && !comparison}
+              >
+                清除
+              </button>
+            </div>
+          </div>
+
+          {comparison && (
+            <div className={`comparison-box ${comparison.includes('✅') ? 'success' : 'error'}`}>
+              <h3>📊 解法分析</h3>
+              <pre>{comparison}</pre>
             </div>
           )}
 

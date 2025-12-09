@@ -233,6 +233,86 @@
   word-wrap: break-word;
 }
 
+/* 解法输入样式 */
+.input-hint {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 5px 0 10px 0;
+  text-align: left;
+}
+
+.solution-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  resize: vertical;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.solution-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.solution-input::placeholder {
+  color: #9ca3af;
+}
+
+/* 比较结果样式 */
+.comparison-box {
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 2px solid;
+}
+
+.comparison-box.success {
+  background: #ecfdf5;
+  border-color: #10b981;
+}
+
+.comparison-box.error {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+.comparison-box h3 {
+  margin-top: 0;
+}
+
+.comparison-box.success h3 {
+  color: #059669;
+}
+
+.comparison-box.error h3 {
+  color: #dc2626;
+}
+
+.comparison-box pre {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 0.95rem;
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.comparison-box.success pre {
+  color: #065f46;
+}
+
+.comparison-box.error pre {
+  color: #991b1b;
+}
+
 .app-footer {
   background: rgba(255, 255, 255, 0.95);
   padding: 20px;

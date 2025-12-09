@@ -2,9 +2,15 @@
 .cube-container {
   perspective: 1000px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   margin: 20px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  touch-action: none;
 }
 
 .cube-3d {
@@ -19,17 +25,20 @@
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  transform: rotateX(-20deg) rotateY(-30deg);
-  animation: rotate 20s infinite linear;
+  transition: transform 0.1s ease-out;
 }
 
-@keyframes rotate {
-  from {
-    transform: rotateX(-20deg) rotateY(-30deg);
-  }
-  to {
-    transform: rotateX(-20deg) rotateY(330deg);
-  }
+/* 拖动提示 */
+.drag-hint {
+  margin-top: 15px;
+  padding: 8px 16px;
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 8px;
+  color: #667eea;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 /* 魔方面 */
