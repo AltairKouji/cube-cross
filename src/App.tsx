@@ -3,20 +3,21 @@ import './App.css';
 import { RubiksCube } from './RubiksCube';
 import { CrossSolver } from './CrossSolver';
 import { CubeVisualization, CubeNet } from './CubeVisualization';
-import { Move } from './types';
+import { WCAScrambler } from './WCAScrambler';
+import { Move, ColorScheme, DEFAULT_COLOR_SCHEME } from './types';
 
 function App() {
   const [cube] = useState(() => new RubiksCube());
   const [cubeState, setCubeState] = useState(cube.state);
   const [moveHistory, setMoveHistory] = useState<Move[]>([]);
   const [solution, setSolution] = useState<Move[]>([]);
-  const [hint, setHint] = useState<string>('');
   const [viewMode, setViewMode] = useState<'3d' | '2d'>('3d');
   const [userSolution, setUserSolution] = useState<string>('');
   const [comparison, setComparison] = useState<string>('');
+  const [colorScheme, setColorScheme] = useState<ColorScheme>(DEFAULT_COLOR_SCHEME);
 
   // 创建求解器
-  const solver = useMemo(() => new CrossSolver(cube), [cube]);
+  const solver = useMemo(() => new CrossSolver(cube, colorScheme), [cube, colorScheme]);
 
   // 刷新魔方状态
   const updateCubeState = () => {
@@ -28,16 +29,15 @@ function App() {
     cube.move(move);
     setMoveHistory([...moveHistory, move]);
     updateCubeState();
-    updateHint();
   };
 
-  // 打乱魔方
+  // 打乱魔方 - 使用WCA标准打乱
   const scrambleCube = () => {
-    const scrambleMoves = cube.scramble(20);
+    const scrambleMoves = WCAScrambler.generateScramble(20);
+    cube.applyMoves(scrambleMoves);
     setMoveHistory(scrambleMoves);
     setSolution([]);
     updateCubeState();
-    updateHint();
   };
 
   // 求解Cross
@@ -58,7 +58,6 @@ function App() {
       setMoveHistory([...moveHistory, ...solution]);
       setSolution([]);
       updateCubeState();
-      updateHint();
     }
   };
 
@@ -68,14 +67,7 @@ function App() {
     Object.assign(cube, newCube);
     setMoveHistory([]);
     setSolution([]);
-    setHint('');
     updateCubeState();
-  };
-
-  // 更新提示
-  const updateHint = () => {
-    const newHint = CrossSolver.getCrossHint(cube);
-    setHint(newHint);
   };
 
   // 撤销上一步
@@ -86,7 +78,6 @@ function App() {
       cube.applyMoves(newHistory);
       setMoveHistory(newHistory);
       updateCubeState();
-      updateHint();
     }
   };
 
@@ -120,7 +111,7 @@ function App() {
     // 测试用户解法是否有效
     const testCube = cube.clone();
     testCube.applyMoves(userMoves);
-    const userSolves = testCube.isCrossSolved();
+    const userSolves = testCube.isCrossSolved(colorScheme);
 
     // 获取最优解
     const optimalSolution = solver.solveCross();
@@ -206,6 +197,37 @@ function App() {
 
         <div className="controls-section">
           <div className="control-group">
+            <h3>⚙️ 颜色方案设置</h3>
+            <p className="input-hint">设置做Cross时的参照（打乱始终为白上绿前）</p>
+            <div className="color-scheme-grid">
+              <div className="scheme-option">
+                <label>Cross底面颜色：</label>
+                <select
+                  value={colorScheme.topColor}
+                  onChange={(e) => setColorScheme({ ...colorScheme, topColor: e.target.value as 'white' | 'yellow' })}
+                  className="scheme-select"
+                >
+                  <option value="yellow">黄色</option>
+                  <option value="white">白色</option>
+                </select>
+              </div>
+              <div className="scheme-option">
+                <label>前面颜色：</label>
+                <select
+                  value={colorScheme.frontColor}
+                  onChange={(e) => setColorScheme({ ...colorScheme, frontColor: e.target.value as any })}
+                  className="scheme-select"
+                >
+                  <option value="green">绿色</option>
+                  <option value="red">红色</option>
+                  <option value="blue">蓝色</option>
+                  <option value="orange">橙色</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="control-group">
             <h3>主要操作</h3>
             <div className="button-row">
               <button className="btn btn-primary" onClick={scrambleCube}>
@@ -288,13 +310,6 @@ function App() {
               ↶ 撤销
             </button>
           </div>
-
-          {hint && (
-            <div className="hint-box">
-              <h3>💡 提示</h3>
-              <pre>{hint}</pre>
-            </div>
-          )}
 
           {moveHistory.length > 0 && (
             <div className="history-box">

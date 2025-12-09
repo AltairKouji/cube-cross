@@ -241,6 +241,47 @@
   text-align: left;
 }
 
+/* 颜色方案设置样式 */
+.color-scheme-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.scheme-option {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.scheme-option label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+  text-align: left;
+}
+
+.scheme-select {
+  padding: 10px 12px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.scheme-select:hover {
+  border-color: #667eea;
+}
+
+.scheme-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
 .solution-input {
   width: 100%;
   padding: 12px;

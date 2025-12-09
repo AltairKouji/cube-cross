@@ -41,3 +41,15 @@ export interface CrossSolution {
   moves: Move[];
   description: string;
 }
+
+// 颜色方案配置
+export interface ColorScheme {
+  topColor: 'white' | 'yellow';  // 上面颜色（做Cross的底面）
+  frontColor: 'red' | 'green' | 'orange' | 'blue';  // 前面颜色
+}
+
+// 默认颜色方案（黄上绿前）
+export const DEFAULT_COLOR_SCHEME: ColorScheme = {
+  topColor: 'yellow',
+  frontColor: 'green',
+};
