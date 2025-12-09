@@ -1,4 +1,4 @@
-import { Color, CubeState, Move } from './types';
+import { Color, CubeState, Move, ColorScheme, DEFAULT_COLOR_SCHEME } from './types';
 
 export class RubiksCube {
   public state: CubeState;
@@ -227,20 +227,33 @@ export class RubiksCube {
     return scrambleMoves;
   }
 
-  // 检查cross是否完成（以白色底面为例）
-  isCrossSolved(): boolean {
-    // 检查底面中心和4个边块是否为白色
-    if (this.state.D[4] !== Color.YELLOW) return false;
-    if (this.state.D[1] !== Color.YELLOW) return false;
-    if (this.state.D[3] !== Color.YELLOW) return false;
-    if (this.state.D[5] !== Color.YELLOW) return false;
-    if (this.state.D[7] !== Color.YELLOW) return false;
+  // 检查cross是否完成（根据颜色方案）
+  isCrossSolved(colorScheme: ColorScheme = DEFAULT_COLOR_SCHEME): boolean {
+    // 获取目标底面颜色（做Cross的面）
+    const bottomColor = colorScheme.topColor === 'yellow' ? Color.YELLOW : Color.WHITE;
+
+    // 获取侧面颜色（按顺时针顺序：前-右-后-左）
+    // 标准配色：绿前-红右-蓝后-橙左
+    const colorOrder: { [key: string]: Color[] } = {
+      'green': [Color.GREEN, Color.RED, Color.BLUE, Color.ORANGE],
+      'red': [Color.RED, Color.BLUE, Color.ORANGE, Color.GREEN],
+      'blue': [Color.BLUE, Color.ORANGE, Color.GREEN, Color.RED],
+      'orange': [Color.ORANGE, Color.GREEN, Color.RED, Color.BLUE],
+    };
+    const sideColors = colorOrder[colorScheme.frontColor];
+
+    // 检查底面中心和4个边块是否为目标颜色
+    if (this.state.D[4] !== bottomColor) return false;
+    if (this.state.D[1] !== bottomColor) return false;
+    if (this.state.D[3] !== bottomColor) return false;
+    if (this.state.D[5] !== bottomColor) return false;
+    if (this.state.D[7] !== bottomColor) return false;
 
     // 检查侧面的边块颜色是否匹配
-    if (this.state.F[7] !== Color.GREEN) return false;
-    if (this.state.R[7] !== Color.RED) return false;
-    if (this.state.B[7] !== Color.BLUE) return false;
-    if (this.state.L[7] !== Color.ORANGE) return false;
+    if (this.state.F[7] !== sideColors[0]) return false;  // 前
+    if (this.state.R[7] !== sideColors[1]) return false;  // 右
+    if (this.state.B[7] !== sideColors[2]) return false;  // 后
+    if (this.state.L[7] !== sideColors[3]) return false;  // 左
 
     return true;
   }

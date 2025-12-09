@@ -1,18 +1,27 @@
 import { RubiksCube } from './RubiksCube';
-import { CrossSolution, Move, Color } from './types';
+import { CrossSolution, Move, Color, ColorScheme, DEFAULT_COLOR_SCHEME } from './types';
 
 export class CrossSolver {
   private cube: RubiksCube;
+  private colorScheme: ColorScheme;
 
-  constructor(cube: RubiksCube) {
+  constructor(cube: RubiksCube, colorScheme: ColorScheme = DEFAULT_COLOR_SCHEME) {
     this.cube = cube;
+    this.colorScheme = colorScheme;
+  }
+
+  /**
+   * 更新颜色方案
+   */
+  setColorScheme(scheme: ColorScheme): void {
+    this.colorScheme = scheme;
   }
 
   // 简化的Cross求解器
   // 在实际应用中，这需要更复杂的算法来找到最优解
   solveCross(): CrossSolution {
     // 检查是否已经解决
-    if (this.cube.isCrossSolved()) {
+    if (this.cube.isCrossSolved(this.colorScheme)) {
       return {
         moves: [],
         description: 'Cross已经完成！',
@@ -112,49 +121,4 @@ export class CrossSolver {
     return moves;
   }
 
-  // 生成Cross训练打乱
-  static generateCrossScramble(): Move[] {
-    // 生成一个只影响Cross的打乱
-    const crossMoves: Move[] = ['F', 'R', 'U', "F'", "R'", "U'"];
-    const scramble: Move[] = [];
-
-    for (let i = 0; i < 8; i++) {
-      const randomMove = crossMoves[Math.floor(Math.random() * crossMoves.length)];
-      scramble.push(randomMove);
-    }
-
-    return scramble;
-  }
-
-  // 验证解决方案
-  static verifySolution(cube: RubiksCube, moves: Move[]): boolean {
-    const testCube = cube.clone();
-    testCube.applyMoves(moves);
-    return testCube.isCrossSolved();
-  }
-
-  // 获取Cross提示
-  static getCrossHint(cube: RubiksCube): string {
-    const hints: string[] = [];
-
-    // 检查底面的边块
-    if (cube.state.D[1] !== Color.YELLOW) {
-      hints.push('前边块(绿色)需要调整');
-    }
-    if (cube.state.D[3] !== Color.YELLOW) {
-      hints.push('左边块(橙色)需要调整');
-    }
-    if (cube.state.D[5] !== Color.YELLOW) {
-      hints.push('右边块(红色)需要调整');
-    }
-    if (cube.state.D[7] !== Color.YELLOW) {
-      hints.push('后边块(蓝色)需要调整');
-    }
-
-    if (hints.length === 0) {
-      return 'Cross已完成！继续下一步：F2L';
-    }
-
-    return '需要调整的边块：\n' + hints.join('\n');
-  }
 }
